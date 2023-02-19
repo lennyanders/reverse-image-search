@@ -5,9 +5,9 @@ import { createTinEyeMenuItem } from './menuActions/tinEye.js';
 
 chrome.contextMenus.removeAll();
 
-const id = '0';
+const id = 'Search the web for image';
 
-chrome.contextMenus.create({ id, title: 'Search the web for image', contexts: ['image'] }, () => {
+chrome.contextMenus.create({ id, title: id, contexts: ['image'] }, () => {
   createSauceNaoMenuItem(id);
   createIqdbMenuItem(id);
   createGoogleMenuItem(id);
