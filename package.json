@@ -1,0 +1,20 @@
+{
+  "name": "reverse-image-search",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lennyanders/reverse-image-search.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lennyanders/reverse-image-search/issues"
+  },
+  "homepage": "https://github.com/lennyanders/reverse-image-search#readme",
+  "devDependencies": {
+    "chrome-types": "^0.1.173"
+  }
+}

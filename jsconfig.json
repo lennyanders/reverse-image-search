@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "checkJs": true,
+    "noImplicitAny": true,
+    "types": ["chrome-types"]
+  }
+}

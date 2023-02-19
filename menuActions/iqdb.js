@@ -1,5 +1,6 @@
 import { isFile } from '../utils.js';
 
+/** @param {string} parentId */
 export const createIqdbMenuItem = (parentId) => {
   const id = 'iqdb';
 

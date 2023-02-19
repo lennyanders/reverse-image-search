@@ -1,5 +1,32 @@
 import { isFile } from '../utils.js';
 
+/**
+ * @param {string} image
+ * @param {string} filename
+ */
+const searchFileOnTinEyeContentScript = async (image, filename) => {
+  const upload = async () => {
+    /** @type {HTMLInputElement} */
+    const input = document.querySelector('#upload_box');
+    if (!input) return false;
+
+    const imageBuffer = await fetch(image).then((result) => result.arrayBuffer());
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File([imageBuffer], filename, { type: 'image/jpeg' }));
+
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new InputEvent('change'));
+    return true;
+  };
+
+  if (await upload()) return;
+
+  /** @type {MutationObserver} */
+  const observer = new MutationObserver(async () => (await upload()) && observer.disconnect());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+};
+
+/** @param {{ command: string; image: string; filename: string }} p1 */
 const searchFileOnTinEye = ({ command, image, filename }) => {
   if (command !== 'search-on-tineye' || !image || !filename) return;
 
@@ -9,31 +36,16 @@ const searchFileOnTinEye = ({ command, image, filename }) => {
         target: { tabId: id },
         injectImmediately: true,
         args: [image, filename],
-        func: async (image, filename) => {
-          const lol = async () => {
-            const input = document.getElementById('upload_box');
-            if (!input) return false;
-
-            const imageBuffer = await fetch(image).then((result) => result.arrayBuffer());
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(new File([imageBuffer], filename, { type: 'image/jpeg' }));
-
-            input.files = dataTransfer.files;
-            input.dispatchEvent(new InputEvent('change'));
-            return true;
-          };
-
-          if (await lol()) return;
-
-          const observer = new MutationObserver(async () => (await lol()) && observer.disconnect());
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-        },
+        // @ts-ignore
+        func: searchFileOnTinEyeContentScript,
       });
     });
   });
+  // @ts-ignore
   chrome.runtime.onMessage.removeListener(searchFileOnTinEye);
 };
 
+/** @param {string} parentId */
 export const createTinEyeMenuItem = (parentId) => {
   const id = 'TinEye';
 
@@ -43,6 +55,7 @@ export const createTinEyeMenuItem = (parentId) => {
     if (menuItemId !== id) return;
 
     if (isFile(srcUrl)) {
+      // @ts-ignore
       chrome.runtime.onMessage.addListener(searchFileOnTinEye);
       chrome.scripting.executeScript({
         target: { tabId: tab.id },

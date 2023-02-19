@@ -1,5 +1,6 @@
 import { isFile } from '../utils.js';
 
+/** @param {string} parentId */
 export const createSauceNaoMenuItem = (parentId) => {
   const id = 'sauceNAO';
 
