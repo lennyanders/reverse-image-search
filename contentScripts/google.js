@@ -7,9 +7,7 @@
   canvas.height = image.naturalHeight;
   context.drawImage(image, 0, 0);
 
-  const imageBuffer = await fetch(
-    canvas.toDataURL('image/jpeg', 1),
-  ).then((result) => result.arrayBuffer());
+  const imageBuffer = await fetch(canvas.toDataURL('image/jpeg', 1)).then((r) => r.arrayBuffer());
 
   const dataTransfer = new DataTransfer();
   dataTransfer.items.add(
@@ -19,7 +17,7 @@
   );
 
   const form = document.createElement('form');
-  form.action = 'https://images.google.de/searchbyimage/upload';
+  form.action = 'https://images.google.com/searchbyimage/upload';
   form.method = 'POST';
   form.enctype = 'multipart/form-data';
   form.target = '_blank';

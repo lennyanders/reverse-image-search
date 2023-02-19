@@ -20,7 +20,7 @@ export const createGoogleMenuItem = (parentId) => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([{ index }]) => {
       chrome.tabs.create({
         index: index + 1,
-        url: `https://images.google.de/searchbyimage?image_url=${srcUrl}`,
+        url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,
       });
     });
   });
