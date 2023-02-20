@@ -6,7 +6,7 @@ export const createGoogleMenuItem = (parentId) => {
 
   chrome.contextMenus.create({ parentId, id, title: id, contexts: ['image'] });
 
-  chrome.contextMenus.onClicked.addListener(({ menuItemId, srcUrl }, tab) => {
+  chrome.contextMenus.onClicked.addListener(async ({ menuItemId, srcUrl }, tab) => {
     if (menuItemId !== id) return;
 
     if (isFile(srcUrl)) {
@@ -48,11 +48,34 @@ export const createGoogleMenuItem = (parentId) => {
       return;
     }
 
-    chrome.tabs.query({ active: true, currentWindow: true }, ([{ index }]) => {
-      chrome.tabs.create({
-        index: index + 1,
-        url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,
-      });
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const newTab = await chrome.tabs.create({
+      index: activeTab.index + 1,
+      url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,
     });
+
+    /** @param {number} tabid */
+    const onloaded = (tabid) => {
+      if (tabid !== newTab.id) return;
+
+      chrome.tabs.onUpdated.removeListener(onloaded);
+      chrome.scripting.executeScript({
+        target: { tabId: newTab.id },
+        injectImmediately: true,
+        func: () => {
+          const updateUrl = () => {
+            /** @type {HTMLAnchorElement} */
+            const anchor = document.querySelector('a[href^="https://www.google.com/search?tbs"]');
+            if (anchor) location.href = anchor.href;
+          };
+
+          updateUrl();
+
+          const observer = new MutationObserver(updateUrl);
+          observer.observe(document.documentElement, { childList: true, subtree: true });
+        },
+      });
+    };
+    chrome.tabs.onUpdated.addListener(onloaded);
   });
 };
