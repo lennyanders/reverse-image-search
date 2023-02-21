@@ -1,12 +1,11 @@
-import { isFile } from '../utils.js';
+import { isFile } from '../utils';
 
-/** @param {string} parentId */
-export const createSauceNaoMenuItem = (parentId) => {
-  const id = 'sauceNAO';
+export const createGoogleMenuItem = (parentId: string) => {
+  const id = 'Google';
 
   chrome.contextMenus.create({ parentId, id, title: id, contexts: ['image'] });
 
-  chrome.contextMenus.onClicked.addListener(({ menuItemId, srcUrl }, tab) => {
+  chrome.contextMenus.onClicked.addListener(async ({ menuItemId, srcUrl }, tab) => {
     if (menuItemId !== id) return;
 
     if (isFile(srcUrl)) {
@@ -29,7 +28,7 @@ export const createSauceNaoMenuItem = (parentId) => {
           dataTransfer.items.add(new File([imageBuffer], image.src.split('/').pop(), { type }));
 
           const form = document.createElement('form');
-          form.action = 'https://saucenao.com/search.php';
+          form.action = 'https://images.google.com/searchbyimage/upload';
           form.method = 'POST';
           form.enctype = 'multipart/form-data';
           form.target = '_blank';
@@ -37,7 +36,7 @@ export const createSauceNaoMenuItem = (parentId) => {
 
           const input = document.createElement('input');
           input.type = 'file';
-          input.name = 'file';
+          input.name = 'encoded_image';
           input.files = dataTransfer.files;
 
           form.append(input);
@@ -48,11 +47,34 @@ export const createSauceNaoMenuItem = (parentId) => {
       return;
     }
 
-    chrome.tabs.query({ active: true, currentWindow: true }, ([{ index }]) => {
-      chrome.tabs.create({
-        index: index + 1,
-        url: `https://saucenao.com/search.php?url=${srcUrl}`,
-      });
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const newTab = await chrome.tabs.create({
+      index: activeTab.index + 1,
+      url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,
     });
+
+    const onloaded = (tabid: number) => {
+      if (tabid !== newTab.id) return;
+
+      chrome.tabs.onUpdated.removeListener(onloaded);
+      chrome.scripting.executeScript({
+        target: { tabId: newTab.id },
+        injectImmediately: true,
+        func: () => {
+          const updateUrl = () => {
+            const anchor = document.querySelector<HTMLAnchorElement>(
+              'a[href^="https://www.google.com/search?tbs"]',
+            );
+            if (anchor) location.href = anchor.href;
+          };
+
+          updateUrl();
+
+          const observer = new MutationObserver(updateUrl);
+          observer.observe(document.documentElement, { childList: true, subtree: true });
+        },
+      });
+    };
+    chrome.tabs.onUpdated.addListener(onloaded);
   });
 };

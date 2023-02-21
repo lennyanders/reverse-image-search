@@ -1,13 +1,8 @@
-import { isFile } from '../utils.js';
+import { isFile } from '../utils';
 
-/**
- * @param {string} image
- * @param {string} filename
- */
-const searchFileOnTinEyeContentScript = async (image, filename) => {
+const searchFileOnTinEyeContentScript = async (image: string, filename: string) => {
   const upload = async () => {
-    /** @type {HTMLInputElement} */
-    const input = document.querySelector('#upload_box');
+    const input = document.querySelector<HTMLInputElement>('#upload_box');
     if (!input) return false;
 
     const imageBuffer = await fetch(image).then((result) => result.arrayBuffer());
@@ -21,13 +16,21 @@ const searchFileOnTinEyeContentScript = async (image, filename) => {
 
   if (await upload()) return;
 
-  /** @type {MutationObserver} */
-  const observer = new MutationObserver(async () => (await upload()) && observer.disconnect());
+  const observer: MutationObserver = new MutationObserver(
+    async () => (await upload()) && observer.disconnect(),
+  );
   observer.observe(document.documentElement, { childList: true, subtree: true });
 };
 
-/** @param {{ command: string; image: string; filename: string }} p1 */
-const searchFileOnTinEye = ({ command, image, filename }) => {
+const searchFileOnTinEye = ({
+  command,
+  image,
+  filename,
+}: {
+  command: string;
+  image: string;
+  filename: string;
+}) => {
   if (command !== 'search-on-tineye' || !image || !filename) return;
 
   chrome.tabs.query({ active: true, currentWindow: true }, ([{ index }]) => {
@@ -45,8 +48,7 @@ const searchFileOnTinEye = ({ command, image, filename }) => {
   chrome.runtime.onMessage.removeListener(searchFileOnTinEye);
 };
 
-/** @param {string} parentId */
-export const createTinEyeMenuItem = (parentId) => {
+export const createTinEyeMenuItem = (parentId: string) => {
   const id = 'TinEye';
 
   chrome.contextMenus.create({ parentId, id, title: id, contexts: ['image'] });

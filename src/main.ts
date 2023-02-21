@@ -1,7 +1,7 @@
-import { createSauceNaoMenuItem } from './menuActions/sauceNao.js';
-import { createIqdbMenuItem } from './menuActions/iqdb.js';
-import { createGoogleMenuItem } from './menuActions/google.js';
-import { createTinEyeMenuItem } from './menuActions/tinEye.js';
+import { createSauceNaoMenuItem } from './menuActions/sauceNao';
+import { createIqdbMenuItem } from './menuActions/iqdb';
+import { createGoogleMenuItem } from './menuActions/google';
+import { createTinEyeMenuItem } from './menuActions/tinEye';
 
 chrome.contextMenus.removeAll();
 

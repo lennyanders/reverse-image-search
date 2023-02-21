@@ -15,8 +15,8 @@
   },
   "homepage": "https://github.com/lennyanders/reverse-image-search#readme",
   "scripts": {
-    "build": "rm -rf dist && cp -a public dist && esbuild src/main.js --bundle --format=esm --minify --outfile=dist/background.js",
-    "start": "rm -rf dist && cp -a public dist && esbuild src/main.js --bundle --format=esm --minify --sourcemap=inline --watch --outfile=dist/background.js"
+    "build": "rm -rf dist && cp -a public dist && esbuild src/main.ts --bundle --format=esm --minify --outfile=dist/background.js",
+    "start": "rm -rf dist && cp -a public dist && esbuild src/main.ts --bundle --format=esm --minify --sourcemap=inline --watch --outfile=dist/background.js"
   },
   "devDependencies": {
     "chrome-types": "^0.1.173",

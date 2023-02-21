@@ -1,7 +1,6 @@
-import { isFile } from '../utils.js';
+import { isFile } from '../utils';
 
-/** @param {string} parentId */
-export const createIqdbMenuItem = (parentId) => {
+export const createIqdbMenuItem = (parentId: string) => {
   const id = 'iqdb';
 
   chrome.contextMenus.create({ parentId, id, title: id, contexts: ['image'] });
