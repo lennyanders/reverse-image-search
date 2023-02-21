@@ -1,4 +1,4 @@
-import { isFile } from '../utils';
+import { getActiveTab, isFile } from '../shared';
 
 export const createGoogleMenuItem = (parentId: string) => {
   const id = 'Google';
@@ -47,7 +47,7 @@ export const createGoogleMenuItem = (parentId: string) => {
       return;
     }
 
-    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const activeTab = await getActiveTab();
     const newTab = await chrome.tabs.create({
       index: activeTab.index + 1,
       url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,

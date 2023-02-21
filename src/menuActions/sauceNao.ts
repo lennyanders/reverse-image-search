@@ -1,11 +1,11 @@
-import { isFile } from '../utils';
+import { getActiveTab, isFile } from '../shared';
 
 export const createSauceNaoMenuItem = (parentId: string) => {
   const id = 'sauceNAO';
 
   chrome.contextMenus.create({ parentId, id, title: id, contexts: ['image'] });
 
-  chrome.contextMenus.onClicked.addListener(({ menuItemId, srcUrl }, tab) => {
+  chrome.contextMenus.onClicked.addListener(async ({ menuItemId, srcUrl }, tab) => {
     if (menuItemId !== id) return;
 
     if (isFile(srcUrl)) {
@@ -47,11 +47,10 @@ export const createSauceNaoMenuItem = (parentId: string) => {
       return;
     }
 
-    chrome.tabs.query({ active: true, currentWindow: true }, ([{ index }]) => {
-      chrome.tabs.create({
-        index: index + 1,
-        url: `https://saucenao.com/search.php?url=${srcUrl}`,
-      });
+    const activeTab = await getActiveTab();
+    chrome.tabs.create({
+      index: activeTab.index + 1,
+      url: `https://saucenao.com/search.php?url=${srcUrl}`,
     });
   });
 };
