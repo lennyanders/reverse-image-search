@@ -11,16 +11,23 @@ export const createTinEyeMenuItem = (parentId: string) => {
     if (isFile(srcUrl)) {
       const [{ result }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        func: () => {
+        func: async () => {
           const image = document.querySelector('img');
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
 
-          canvas.width = image.naturalWidth;
-          canvas.height = image.naturalHeight;
-          context.drawImage(image, 0, 0);
+          const maxSize = 3840;
+          const divider = Math.ceil(Math.max(image.naturalWidth, image.naturalHeight) / maxSize);
+          const width = Math.floor(image.naturalWidth / divider);
+          const height = Math.floor(image.naturalHeight / divider);
 
-          return canvas.toDataURL('image/jpeg', 1);
+          const canvas = new OffscreenCanvas(width, height);
+          canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+          const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.5 });
+
+          return await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
         },
       });
       const activeTab = await getActiveTab();
@@ -38,9 +45,9 @@ export const createTinEyeMenuItem = (parentId: string) => {
             const input = document.querySelector<HTMLInputElement>('#upload_box');
             if (!input) return false;
 
-            const imageBuffer = await fetch(image).then((result) => result.arrayBuffer());
+            const blob = await fetch(image).then((result) => result.blob());
             const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(new File([imageBuffer], 'file', { type: 'image/jpeg' }));
+            dataTransfer.items.add(new File([blob], 'file', { type: 'image/jpeg' }));
 
             input.files = dataTransfer.files;
             input.dispatchEvent(new InputEvent('change'));

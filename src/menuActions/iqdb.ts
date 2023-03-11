@@ -13,19 +13,18 @@ export const createIqdbMenuItem = (parentId: string) => {
         target: { tabId: tab.id },
         func: async () => {
           const image = document.querySelector('img');
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
 
-          canvas.width = image.naturalWidth;
-          canvas.height = image.naturalHeight;
-          context.drawImage(image, 0, 0);
+          const maxSize = 3840;
+          const divider = Math.ceil(Math.max(image.naturalWidth, image.naturalHeight) / maxSize);
+          const width = Math.floor(image.naturalWidth / divider);
+          const height = Math.floor(image.naturalHeight / divider);
 
-          const type = 'image/jpeg';
-          const imageResponse = await fetch(canvas.toDataURL(type, 1));
-          const imageBuffer = await imageResponse.arrayBuffer();
+          const canvas = new OffscreenCanvas(width, height);
+          canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+          const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.5 });
 
           const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(new File([imageBuffer], image.src.split('/').pop(), { type }));
+          dataTransfer.items.add(new File([blob], image.src.split('/').pop()));
 
           const form = document.createElement('form');
           form.action = 'https://www.iqdb.org/';

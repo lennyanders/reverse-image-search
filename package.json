@@ -19,6 +19,7 @@
     "start": "rm -rf dist && cp -a public dist && esbuild src/main.ts --bundle --format=esm --minify --sourcemap=inline --watch --outfile=dist/background.js"
   },
   "devDependencies": {
+    "@types/offscreencanvas": "^2019.7.0",
     "chrome-types": "^0.1.173",
     "esbuild": "^0.17.8",
     "prettier": "^2.8.3",
