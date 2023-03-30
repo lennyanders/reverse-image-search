@@ -1,4 +1,4 @@
-import { getActiveTab, isFile } from '../shared';
+import { isFile, searchOnlineImage } from '../shared';
 
 export const createIqdbMenuItem = (parentId: string) => {
   const id = 'iqdb';
@@ -46,9 +46,6 @@ export const createIqdbMenuItem = (parentId: string) => {
       return;
     }
 
-    const activeTab = await getActiveTab();
-    const url = new URL('http://www.iqdb.org');
-    url.searchParams.set('url', srcUrl);
-    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
+    searchOnlineImage('http://www.iqdb.org', srcUrl);
   });
 };

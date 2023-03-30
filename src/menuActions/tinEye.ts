@@ -1,4 +1,4 @@
-import { getActiveTab, isFile } from '../shared';
+import { getActiveTab, isFile, searchOnlineImage } from '../shared';
 
 export const createTinEyeMenuItem = (parentId: string) => {
   const id = 'TinEye';
@@ -65,9 +65,6 @@ export const createTinEyeMenuItem = (parentId: string) => {
       return;
     }
 
-    const activeTab = await getActiveTab();
-    const url = new URL('https://tineye.com/search');
-    url.searchParams.set('url', srcUrl);
-    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
+    searchOnlineImage('https://tineye.com/search', srcUrl);
   });
 };

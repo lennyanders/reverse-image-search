@@ -1,4 +1,4 @@
-import { getActiveTab, isFile } from '../shared';
+import { isFile, searchOnlineImage } from '../shared';
 
 export const createGoogleMenuItem = (parentId: string) => {
   const id = 'Google';
@@ -46,10 +46,7 @@ export const createGoogleMenuItem = (parentId: string) => {
       return;
     }
 
-    const activeTab = await getActiveTab();
-    const url = new URL('https://lens.google.com/uploadbyurl');
-    url.searchParams.set('url', srcUrl);
-    const newTab = await chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
+    const newTab = await searchOnlineImage('https://lens.google.com/uploadbyurl', srcUrl);
 
     const onloaded = (tabid: number) => {
       if (tabid !== newTab.id) return;

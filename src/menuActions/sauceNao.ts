@@ -1,4 +1,4 @@
-import { getActiveTab, isFile } from '../shared';
+import { isFile, searchOnlineImage } from '../shared';
 
 export const createSauceNaoMenuItem = (parentId: string) => {
   const id = 'sauceNAO';
@@ -46,9 +46,6 @@ export const createSauceNaoMenuItem = (parentId: string) => {
       return;
     }
 
-    const activeTab = await getActiveTab();
-    const url = new URL('https://saucenao.com/search.php');
-    url.searchParams.set('url', srcUrl);
-    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
+    searchOnlineImage('https://saucenao.com/search.php', srcUrl);
   });
 };
