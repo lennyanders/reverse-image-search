@@ -66,9 +66,8 @@ export const createTinEyeMenuItem = (parentId: string) => {
     }
 
     const activeTab = await getActiveTab();
-    chrome.tabs.create({
-      index: activeTab.index + 1,
-      url: `https://tineye.com/search?url=${srcUrl}`,
-    });
+    const url = new URL('https://tineye.com/search');
+    url.searchParams.set('url', srcUrl);
+    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
   });
 };

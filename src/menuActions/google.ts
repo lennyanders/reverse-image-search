@@ -47,10 +47,9 @@ export const createGoogleMenuItem = (parentId: string) => {
     }
 
     const activeTab = await getActiveTab();
-    const newTab = await chrome.tabs.create({
-      index: activeTab.index + 1,
-      url: `https://lens.google.com/uploadbyurl?url=${srcUrl}`,
-    });
+    const url = new URL('https://lens.google.com/uploadbyurl');
+    url.searchParams.set('url', srcUrl);
+    const newTab = await chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
 
     const onloaded = (tabid: number) => {
       if (tabid !== newTab.id) return;

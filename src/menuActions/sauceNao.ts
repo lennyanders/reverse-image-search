@@ -47,9 +47,8 @@ export const createSauceNaoMenuItem = (parentId: string) => {
     }
 
     const activeTab = await getActiveTab();
-    chrome.tabs.create({
-      index: activeTab.index + 1,
-      url: `https://saucenao.com/search.php?url=${srcUrl}`,
-    });
+    const url = new URL('https://saucenao.com/search.php');
+    url.searchParams.set('url', srcUrl);
+    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
   });
 };

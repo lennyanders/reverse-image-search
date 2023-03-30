@@ -47,6 +47,8 @@ export const createIqdbMenuItem = (parentId: string) => {
     }
 
     const activeTab = await getActiveTab();
-    chrome.tabs.create({ index: activeTab.index + 1, url: `http://www.iqdb.org?url=${srcUrl}` });
+    const url = new URL('http://www.iqdb.org');
+    url.searchParams.set('url', srcUrl);
+    chrome.tabs.create({ index: activeTab.index + 1, url: url.href });
   });
 };
