@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "name": "reverse-image-search",
   "description": "An extension to reverse search images through your browsers' context menu.",
-  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "permissions": ["contextMenus", "activeTab", "tabs", "scripting"],
   "host_permissions": ["https://tineye.com/", "https://lens.google.com/search"],
   "background": { "service_worker": "/background.js", "type": "module" },
   "manifest_version": 3

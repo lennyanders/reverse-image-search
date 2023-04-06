@@ -1,5 +1,36 @@
 import { isFile, searchOnlineImage } from '../shared';
 
+const goToSourcesPage = (newTab: chrome.tabs.Tab) => {
+  const onloaded = (
+    tabid: number,
+    changeInfo: Parameters<Parameters<typeof chrome.tabs.onUpdated.addListener>[0]>[1],
+  ) => {
+    if (tabid !== newTab.id || !changeInfo.url?.startsWith('https://lens.google.com/search')) {
+      return;
+    }
+
+    chrome.tabs.onUpdated.removeListener(onloaded);
+    chrome.scripting.executeScript({
+      target: { tabId: newTab.id },
+      injectImmediately: true,
+      func: () => {
+        const updateUrl = () => {
+          const anchor = document.querySelector<HTMLAnchorElement>(
+            'a[href^="https://www.google.com/search?tbs"]',
+          );
+          if (anchor) location.href = anchor.href;
+        };
+
+        updateUrl();
+
+        const observer = new MutationObserver(updateUrl);
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      },
+    });
+  };
+  chrome.tabs.onUpdated.addListener(onloaded);
+};
+
 export const createGoogleMenuItem = (parentId: string) => {
   const id = 'Google';
 
@@ -9,6 +40,11 @@ export const createGoogleMenuItem = (parentId: string) => {
     if (menuItemId !== id) return;
 
     if (isFile(srcUrl)) {
+      const onCreated = (newTab: chrome.tabs.Tab) => {
+        chrome.tabs.onCreated.removeListener(onCreated);
+        goToSourcesPage(newTab);
+      };
+      chrome.tabs.onCreated.addListener(onCreated);
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: async () => {
@@ -27,7 +63,7 @@ export const createGoogleMenuItem = (parentId: string) => {
           dataTransfer.items.add(new File([blob], image.src.split('/').pop()));
 
           const form = document.createElement('form');
-          form.action = 'https://images.google.com/searchbyimage/upload';
+          form.action = 'https://lens.google.com/upload';
           form.method = 'POST';
           form.enctype = 'multipart/form-data';
           form.target = '_blank';
@@ -46,30 +82,6 @@ export const createGoogleMenuItem = (parentId: string) => {
       return;
     }
 
-    const newTab = await searchOnlineImage('https://lens.google.com/uploadbyurl', srcUrl);
-
-    const onloaded = (tabid: number) => {
-      if (tabid !== newTab.id) return;
-
-      chrome.tabs.onUpdated.removeListener(onloaded);
-      chrome.scripting.executeScript({
-        target: { tabId: newTab.id },
-        injectImmediately: true,
-        func: () => {
-          const updateUrl = () => {
-            const anchor = document.querySelector<HTMLAnchorElement>(
-              'a[href^="https://www.google.com/search?tbs"]',
-            );
-            if (anchor) location.href = anchor.href;
-          };
-
-          updateUrl();
-
-          const observer = new MutationObserver(updateUrl);
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-        },
-      });
-    };
-    chrome.tabs.onUpdated.addListener(onloaded);
+    goToSourcesPage(await searchOnlineImage('https://lens.google.com/uploadbyurl', srcUrl));
   });
 };
